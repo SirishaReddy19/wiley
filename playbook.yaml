@@ -1,20 +1,55 @@
 ---
-- name: install tomcat server
-  hosts: tomcat_server
-  become: true
-
-
+- hosts: webservers
+  remote_user: ubuntu
+  become: yes
   tasks:
-  - name: download tomcat server packages
-    get_url:
-      url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.72/bin/apache-tomcat-8.5.72.tar.gz
-      dest: /usr/local
-
-  - name: extract tomcat packages
-    unarchive:
-      src: /usr/local/apache-tomcat-8.5.72.tar.gz
-      dest: /usr/local
-      remote_src: yes
-
-  - name: start tomcat services
-    shell: nohup /usr/local/apache-tomcat-8.5.72/bin/startup.sh
+  - name: installing tomcat CentOS
+    package:
+      name: tomcat
+      state: present
+    when:  ansible_facts['os_family'] == "RedHat"
+  - name: installing tomcat Ubuntu
+    package:
+      name: tomcat9
+      state: present
+    when:  ansible_facts['os_family'] == "Debian"
+  - name: starting tomcat CentOS
+    service:
+      name: tomcat
+      state: started
+    when:  ansible_facts['os_family'] == "RedHat"
+  - name: starting tomcat Ubuntu
+    service:
+      name: tomcat9
+      state: started
+    when:  ansible_facts['os_family'] == "Debian"
+  - name: starting up tomcat CentOS 
+    service:
+      name: tomcat
+      state: restarted
+    when:  ansible_facts['os_family'] == "RedHat"
+  - name: starting tomcat Ubuntu
+    service:
+      name: tomcat9
+      state: restarted
+    when:  ansible_facts['os_family'] == "Debian"
+  - name: copying addressbook file CentOS
+    copy:
+      src: /var/lib/jenkins/workspace/step1/addressbook_main/target/addressbook.war
+      dest: /usr/share/tomcat/webapps
+    when:  ansible_facts['os_family'] == "RedHat"
+  - name: copying addressbook file Ubuntu
+    copy:
+      src: /var/lib/jenkins/workspace/step1/addressbook_main/target/addressbook.war
+      dest: /var/lib/tomcat9/webapps
+    when:  ansible_facts['os_family'] == "Debian"
+  - name: starting up tomcat CentOS 
+    service:
+      name: tomcat
+      state: restarted
+    when:  ansible_facts['os_family'] == "RedHat"
+  - name: starting tomcat Ubuntu
+    service:
+      name: tomcat9
+      state: restarted
+    when:  ansible_facts['os_family'] == "Debian"
