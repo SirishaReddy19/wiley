@@ -1,5 +1,5 @@
 ---
-- hosts: tomcat
+- hosts: tomcatserver
   remote_user: root
   become: yes
   tasks:
