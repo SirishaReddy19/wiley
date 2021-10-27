@@ -1,53 +1,80 @@
 ---
-- hosts: tomcatserver
+- hosts: tomcat
   remote_user: root
   become: yes
   tasks:
+  
+  - name: Creating a Directory
+    file:
+      path: /root/gitrepo
+      state: directory
+      
+  - name: Installing git on RedHat flavour
+    yum:
+      name: git
+      state: present
+      update_cache: yes
+    when:  ansible_facts['os_family'] == "RedHat"
+      
+  - name: Cloaning playbook from repo
+    ansible.builtin.git:
+      repo: https://github.com/Aishwarya-Suresh-0812/Wiley-Capstone-Project1.git
+      dest: /root/gitrepo
+      
   - name: installing tomcat CentOS
     package:
       name: tomcat
       state: present
     when:  ansible_facts['os_family'] == "RedHat"
+
   - name: installing tomcat Ubuntu
     package:
       name: tomcat9
       state: present
     when:  ansible_facts['os_family'] == "Debian"
+    
   - name: starting tomcat CentOS
     service:
       name: tomcat
       state: started
     when:  ansible_facts['os_family'] == "RedHat"
+
   - name: starting tomcat Ubuntu
     service:
       name: tomcat9
       state: started
     when:  ansible_facts['os_family'] == "Debian"
+    
   - name: starting up tomcat CentOS 
     service:
       name: tomcat
       state: restarted
     when:  ansible_facts['os_family'] == "RedHat"
-  - name: starting tomcat Ubuntu
+  
+  - name: starting up tomcat Ubuntu
     service:
       name: tomcat9
       state: restarted
     when:  ansible_facts['os_family'] == "Debian"
+  
   - name: copying addressbook file CentOS
     copy:
-      src: /var/lib/jenkins/workspace/step1/addressbook_main/target/addressbook.war
+      src: /root/gitrepo/addressbook-2.0.war
       dest: /usr/share/tomcat/webapps
     when:  ansible_facts['os_family'] == "RedHat"
+  
   - name: copying addressbook file Ubuntu
     copy:
-      src: /var/lib/jenkins/workspace/step1/addressbook_main/target/addressbook.war
+      src: /root/gitrepo/addressbook-2.0.war
       dest: /var/lib/tomcat9/webapps
     when:  ansible_facts['os_family'] == "Debian"
+  
   - name: starting up tomcat CentOS 
     service:
       name: tomcat
       state: restarted
     when:  ansible_facts['os_family'] == "RedHat"
+  
   - name: starting tomcat Ubuntu
     service:
       name: tomcat9
